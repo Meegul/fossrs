@@ -1,0 +1,62 @@
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.geometry.Insets;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
+import javafx.event.EventHandler;
+import java.util.HashMap;
+import java.util.Map;
+
+
+public class Test extends Application {
+
+	private final String[] skillNames = {"attack", "hitpoints", "mining", "strength", "agility", "smithing",
+		"defense", "herblore", "fishing", "ranged", "thieving", "cooking", "prayer", "crafting", "firemaking", 
+		"magic", "fletching", "woodcutting", "runecrafting", "slayer", "farming", "construction", "hunter", "overall"};
+
+	@Override
+	public void start(Stage primaryStage) {
+		Label info = new Label();
+		TextField usernameField = new TextField();
+		GridPane skillGP = new GridPane();
+		BorderPane gameBP = new BorderPane();
+		gameBP.setPadding(new Insets(10, 20, 10, 20));
+		gameBP.setRight(skillGP);
+		gameBP.setCenter(usernameField);
+		skillGP.setMinSize(200, 400);
+		skillGP.setVgap(5);
+		skillGP.setHgap(5);
+		usernameField.setPromptText("Enter your username here.");
+		usernameField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			public void handle(KeyEvent event) {
+				if (event.getCode().equals(KeyCode.ENTER)) {
+					String username = usernameField.getText();
+					RunescapeAccount acc = RunescapeAccount.lookupAccount(usernameField.getText());
+					Map<String, Integer> skills = acc.skills;
+					skillGP.getChildren().clear();
+					for (int row = 0; row < skillNames.length / 3; row++) {
+						for (int col = 0; col < 3; col++) {
+							String skill = skillNames[row*3 + col];
+							Integer level = skills.get(skill);
+							Text skillText = new Text(skill + ":" + level);
+							skillGP.add(skillText, col, row);
+						}
+					}
+				}
+			}
+		});
+
+		Scene scene = new Scene(gameBP, 800, 600);
+
+		primaryStage.setScene(scene);
+		primaryStage.setTitle("FOSSrs");
+		primaryStage.show();
+	}
+}
