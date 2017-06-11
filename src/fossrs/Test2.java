@@ -7,7 +7,7 @@ public class Test2 {
         String accountName = args[0];
         OSRSAccount acc = new OSRSAccount(accountName);
         try {
-            acc.downloadSkills();
+            acc.downloadSkills(true);
         } catch (Exception e) {
             e.printStackTrace();
         }

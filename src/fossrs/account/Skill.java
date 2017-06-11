@@ -3,34 +3,70 @@ package fossrs.account;
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Collections;
 
 public class Skill implements Serializable {
+    static final long serialVersionUID = 101L;
+
     private String name;
     private int level;
     private int xp;
     private int rank;
-    private ArrayList<XPInstance> history;
+    private CopyOnWriteArrayList<XPInstance> history;
 
     public Skill(String name, int level, int xp, int rank) {
         this.name = name;
         this.level = level;
         this.rank = rank;
         this.xp = xp;
-        history = new ArrayList<XPInstance>();
+        this.history = new CopyOnWriteArrayList<XPInstance>();
         history.add(new XPInstance(this.xp, LocalTime.now()));
-    }
-
-    public void addXP(int xp) {
-        this.xp += xp;
-        history.add(new XPInstance(this.xp, LocalTime.now()));
-        this.level = getLevelFromXP(this.xp);
     }
 
     public String getName() { return name; }
     public int getLevel() { return level; }
     public int getXP() { return xp; }
     public int getRank() { return rank; }
-    public ArrayList<XPInstance> getHistory() { return history; }
+    public CopyOnWriteArrayList<XPInstance> getHistory() { return history; }
+
+    public boolean equals(Skill other) {
+        if (!(this.name == other.name &&
+            this.level == other.level &&
+            this.rank == other.rank &&
+            this.xp == other.rank))
+        return false;
+        for (XPInstance instA : history) {
+            boolean same = true;
+            for (XPInstance instB : other.getHistory()) {
+                same = same && instA.equals(instB);
+            }
+            if (!same) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void addXP(int xp) {
+        this.xp += xp;
+        history.add(new XPInstance(this.xp, LocalTime.now()));
+        level = getLevelFromXP(this.xp);
+    }
+
+    public void printHistory() {
+        for (XPInstance inst : history) {
+            System.out.printf("%d@%s\n", getLevelFromXP(inst.getXP()), inst.getTime().toString());
+        }
+    }
+
+    //Loads history from another skill, re-sorts history on time
+    public void loadHistoryFrom(Skill toLoad) {
+        for (XPInstance otherInst : toLoad.getHistory()) {
+            this.history.add(otherInst);
+        }
+        Collections.sort(this.history, new XPInstance.XPInstanceComparator());
+    }
 
     public static int[] xpCutoffs = {
         -1, -1, 83, 174, 276, 388, 512, 650, 801, 969,

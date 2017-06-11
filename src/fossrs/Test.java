@@ -1,3 +1,5 @@
+package fossrs;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
@@ -13,13 +15,11 @@ import javafx.scene.input.KeyCode;
 import javafx.event.EventHandler;
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.StringBuilder;
 
+import fossrs.account.*;
 
 public class Test extends Application {
-
-	private final String[] skillNames = {"attack", "hitpoints", "mining", "strength", "agility", "smithing",
-		"defense", "herblore", "fishing", "ranged", "thieving", "cooking", "prayer", "crafting", "firemaking", 
-		"magic", "fletching", "woodcutting", "runecrafting", "slayer", "farming", "construction", "hunter", "overall"};
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -37,17 +37,14 @@ public class Test extends Application {
 		usernameField.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			public void handle(KeyEvent event) {
 				if (event.getCode().equals(KeyCode.ENTER)) {
-					String username = usernameField.getText();
-					RunescapeAccount acc = RunescapeAccount.lookupAccount(usernameField.getText());
-					Map<String, Integer> skills = acc.skills;
 					skillGP.getChildren().clear();
-					for (int row = 0; row < skillNames.length / 3; row++) {
-						for (int col = 0; col < 3; col++) {
-							String skill = skillNames[row*3 + col];
-							Integer level = skills.get(skill);
-							Text skillText = new Text(skill + ":" + level);
-							skillGP.add(skillText, col, row);
-						}
+					String username = usernameField.getText();
+					OSRSAccount acc = new OSRSAccount(username);
+					try {
+						acc.downloadSkills(true);
+						skillGP.add(new Text(acc.toString()), 0, 0);
+					} catch (Exception e) {
+						skillGP.add(new Text("Could not lookup " + username), 0, 0);
 					}
 				}
 			}
